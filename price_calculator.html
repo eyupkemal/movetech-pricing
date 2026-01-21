@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Karayolu Fiyat Hesaplama Modülü</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background-color: #f4f4f4;
+    }
+    h1 {
+      text-align: center;
+    }
+    form {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      margin: 1rem auto;
+    }
+    .form-group {
+      margin-bottom: 0.75rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-weight: bold;
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 0.6rem 1rem;
+      background: #007bff;
+      border: none;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result {
+      margin-top: 1rem;
+      background: #e9ffe9;
+      padding: 1rem;
+      border: 1px solid #b2deb2;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Karayolu Fiyat Hesaplama Modülü</h1>
+  <form id="quoteForm">
+    <div class="form-group">
+      <label for="origin">Origin (City/Country)</label>
+      <input type="text" id="origin" placeholder="e.g., Istanbul, TR" />
+    </div>
+    <div class="form-group">
+      <label for="destination">Destination (City/Country)</label>
+      <input type="text" id="destination" placeholder="e.g., Berlin, DE" />
+    </div>
+    <div class="form-group">
+      <label for="distance">Distance (km)</label>
+      <input type="number" id="distance" placeholder="Enter the road distance in km" min="0" step="0.1" required />
+    </div>
+    <div class="form-group">
+      <label for="weight">Actual Weight (kg)</label>
+      <input type="number" id="weight" placeholder="Total weight in kg" min="0" step="0.1" />
+    </div>
+    <div class="form-group">
+      <label for="volume">Volume (m³)</label>
+      <input type="number" id="volume" placeholder="Total volume in cubic metres" min="0" step="0.01" />
+    </div>
+    <div class="form-group">
+      <label for="pallets">Number of Euro Pallets (EUR1)</label>
+      <input type="number" id="pallets" placeholder="Number of pallets" min="0" step="1" />
+    </div>
+    <div class="form-group">
+      <label for="ldm">LDM (Loading Meters)</label>
+      <input type="number" id="ldm" placeholder="Length in metres of trailer used" min="0" step="0.01" />
+    </div>
+    <div class="form-group">
+      <label for="costPerKm">Cost per KM (€)</label>
+      <input type="number" id="costPerKm" value="1.5" min="0" step="0.01" />
+    </div>
+    <div class="form-group">
+      <label for="margin">Margin (%)</label>
+      <input type="number" id="margin" value="30" min="0" step="1" />
+    </div>
+    <div class="form-group">
+      <label for="baseFee">Base Fee (€)</label>
+      <input type="number" id="baseFee" value="50" min="0" step="0.01" />
+    </div>
+    <div class="form-group">
+      <label for="notificationFee">Notification Fee (€)</label>
+      <input type="number" id="notificationFee" value="25" min="0" step="0.01" />
+    </div>
+    <button type="submit">Calculate Quote</button>
+  </form>
+  <div id="result" class="result" style="display:none;"></div>
+
+  <script>
+    /**
+     * Compute the chargeable weight in kilograms.
+     * If weight is provided, volume is converted using 333 kg/m³,
+     * pallets are converted using 0.4 LDM per pallet × 1750 kg,
+     * LDM is converted using 1750 kg per LDM.
+     * The maximum of these values is returned.
+     */
+    function calculateChargeableWeight({ weight, volume, pallets, ldm }) {
+      const volumeWeight = volume > 0 ? volume * 333 : 0;
+      const ldmPerPallet = 0.4;
+      const palletWeight = pallets > 0 ? pallets * ldmPerPallet * 1750 : 0;
+      const ldmWeight = ldm > 0 ? ldm * 1750 : 0;
+      return Math.max(weight || 0, volumeWeight, palletWeight, ldmWeight);
+    }
+
+    document.getElementById('quoteForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const distance = parseFloat(document.getElementById('distance').value) || 0;
+      const weight = parseFloat(document.getElementById('weight').value) || 0;
+      const volume = parseFloat(document.getElementById('volume').value) || 0;
+      const pallets = parseInt(document.getElementById('pallets').value) || 0;
+      const ldm = parseFloat(document.getElementById('ldm').value) || 0;
+      const costPerKm = parseFloat(document.getElementById('costPerKm').value) || 0;
+      const marginPct = parseFloat(document.getElementById('margin').value) || 0;
+      const baseFee = parseFloat(document.getElementById('baseFee').value) || 0;
+      const notificationFee = parseFloat(document.getElementById('notificationFee').value) || 0;
+
+      // Calculate chargeable weight
+      const chargeableWeight = calculateChargeableWeight({ weight, volume, pallets, ldm });
+      const capacity = 24000; // kg
+      const shareFactor = chargeableWeight / capacity;
+
+      // Calculate distance-based cost
+      const transportCost = distance * costPerKm;
+      const costShare = transportCost * shareFactor;
+
+      // Sum fixed fees
+      const subtotal = costShare + baseFee + notificationFee;
+
+      // Apply margin
+      const totalBeforeMargin = subtotal;
+      const totalWithMargin = totalBeforeMargin * (1 + marginPct / 100);
+
+      const resultEl = document.getElementById('result');
+      resultEl.style.display = 'block';
+      resultEl.innerHTML = `
+        <h3>Sonuç</h3>
+        <p><strong>Ücretlendirilebilir Ağırlık:</strong> ${chargeableWeight.toFixed(2)} kg</p>
+        <p><strong>Kamyon Payı:</strong> ${(shareFactor * 100).toFixed(2)} %</p>
+        <p><strong>Mesafe Tabanlı Maliyet:</strong> €${transportCost.toFixed(2)}</p>
+        <p><strong>Maliyet Payınız:</strong> €${costShare.toFixed(2)}</p>
+        <p><strong>Sabit Ücretler:</strong> €${(baseFee + notificationFee).toFixed(2)}</p>
+        <p><strong>Toplam (Marj hariç):</strong> €${totalBeforeMargin.toFixed(2)}</p>
+        <p><strong>Kar Marjı (%${marginPct}):</strong> €${(totalWithMargin - totalBeforeMargin).toFixed(2)}</p>
+        <p><strong>Genel Toplam:</strong> €${totalWithMargin.toFixed(2)}</p>
+      `;
+    });
+  </script>
+</body>
+</html>
