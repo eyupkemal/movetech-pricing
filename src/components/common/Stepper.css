@@ -1,0 +1,99 @@
+.stepper-container {
+    width: 100%;
+    padding: 24px 64px;
+    background-color: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    justify-content: center;
+}
+
+.stepper-track {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 1000px;
+}
+
+.step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    /* Above line */
+}
+
+.step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--gray-200);
+    color: var(--gray-600);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.step-circle.active {
+    background-color: var(--primary);
+    color: var(--white);
+    border-color: var(--white);
+    box-shadow: 0 0 0 2px var(--primary);
+    /* Simulate spacing for border */
+}
+
+.step-circle.completed {
+    background-color: var(--success);
+    color: var(--white);
+}
+
+.step-label {
+    position: absolute;
+    top: 48px;
+    width: max-content;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray-600);
+}
+
+.step-label.active {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.step-line {
+    flex: 1;
+    height: 2px;
+    background-color: var(--gray-200);
+    margin: 0 12px;
+    margin-bottom: 24px;
+    /* Align with circle center (approx) */
+    /* Actually, easiest to align using flex items-center on container. 
+     But labels break vertical centering.
+     Better: 
+     items-start, line margin-top 20px. 
+  */
+    transform: translateY(-10px);
+    /* rough adjustment based on label height */
+}
+
+/* Adjust alignment approach */
+.stepper-track {
+    align-items: flex-start;
+}
+
+.step-line {
+    margin-top: 20px;
+    /* Center of 40px circle */
+    transform: none;
+}
+
+.step-line.completed {
+    background-color: var(--primary);
+}

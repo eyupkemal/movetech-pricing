@@ -1,0 +1,102 @@
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    /* To prevent layout shift for outlined buttons */
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn:disabled {
+    background-color: var(--gray-300);
+    color: var(--gray-500);
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.btn:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+/* Variants */
+.btn-primary {
+    background-color: var(--primary);
+    color: var(--white);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--primary-dark);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    border-color: var(--gray-300);
+    color: var(--gray-700);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background-color: var(--gray-50);
+}
+
+.btn-secondary:active:not(:disabled) {
+    background-color: var(--gray-100);
+}
+
+.btn-success {
+    background-color: var(--success);
+    color: var(--white);
+}
+
+.btn-success:hover:not(:disabled) {
+    background-color: var(--success-dark);
+}
+
+.btn-danger {
+    background-color: var(--error);
+    color: var(--white);
+}
+
+.btn-danger:hover:not(:disabled) {
+    background-color: var(--error-dark);
+}
+
+/* Sizes */
+.btn-large {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 600;
+    padding: 12px 24px;
+}
+
+.btn-medium {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 600;
+    padding: 12px 24px;
+}
+
+.btn-small {
+    font-size: 12px;
+    line-height: 18px;
+    font-weight: 500;
+    padding: 8px 16px;
+    /* Inferred smaller padding */
+}
+
+/* Icon Button (Square) */
+.btn-icon {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background-color: transparent;
+    color: var(--gray-600);
+}
+
+.btn-icon:hover:not(:disabled) {
+    background-color: var(--gray-100);
+}
